@@ -1,10 +1,13 @@
 @Echo Off
 SetLocal
 Set "ext=mp4"
+REM You should be able to change mp4 to any other video ext that ffmpeg supports
 Set "opts=-v quiet"
 Set "opts=%opts% -print_format "compact=print_section=0:nokey=1:escape=csv""
 Set "opts=%opts% -show_entries "format=duration""
 If Exist *.%ext% (If Not Exist "Trimmed\" MD Trimmed)
+REM This will create a directory named Trimmed in your Input directory unless there is already a file named Trimmed in your input directory
+REM All output files will be stored in the Trimmed directory
 For %%a In (*.%ext%) Do Call :Sub "%%~a"
 Exit/B
 
@@ -17,3 +20,6 @@ If %hh% Lss 10 Set hh=0%hh%
 If %mm% Lss 10 Set mm=0%mm%
 If %ss% Lss 10 Set ss=0%ss%
 FFMpeg -ss 00:00:03.0000 -i %1 -to %hh%:%mm%:%ss%.%ps:~,3% -c:v copy -c:a copy "Trimmed\%~1"
+REM You can modify how much time you want to shave off of the beginning of your video files here
+REM My goal was to cut the first 3 seconds of each file but your goal may be different
+REM The format is HH:MM:SS.xxxx
