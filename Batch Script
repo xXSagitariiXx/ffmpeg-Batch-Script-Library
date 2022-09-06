@@ -1,0 +1,19 @@
+@Echo Off
+SetLocal
+Set "ext=mp4"
+Set "opts=-v quiet"
+Set "opts=%opts% -print_format "compact=print_section=0:nokey=1:escape=csv""
+Set "opts=%opts% -show_entries "format=duration""
+If Exist *.%ext% (If Not Exist "Trimmed\" MD Trimmed)
+For %%a In (*.%ext%) Do Call :Sub "%%~a"
+Exit/B
+
+:Sub
+For /f "Tokens=1* Delims=." %%a In (
+    'FFProbe %opts% %1') Do (Set/A "ws=%%a" & Set "ps=%%b")
+rem If %ws% Lss 20 GoTo :EOF
+Set/A hh=ws/(60*60), lo=ws%%(60*60), mm=lo/60, ss=lo%%60
+If %hh% Lss 10 Set hh=0%hh%
+If %mm% Lss 10 Set mm=0%mm%
+If %ss% Lss 10 Set ss=0%ss%
+FFMpeg -i %1 -ss 00:00:03.0000 -to %hh%:%mm%:%ss%.%ps:~,3% -c:v copy -c:a copy "Trimmed\%~1"
